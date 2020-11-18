@@ -2,91 +2,70 @@ package com.hemebiotech.analytics;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-/*
- * Class - ReadSymptomDataFromFile - implémente l'interface - ISymptomReader- 
- * 
- **/
+//Class - ReadSymptomDataFromFile - implémente l'interface - ISymptomReader- 
 public class ReadSymptomDataFromFile implements ISymptomReader {
 	
-	// Methode - GetSymptoms() - qui lit un ficher et insert des elements de type "Symptom" dans une Map 	
+	
+	// Methode - GetSymptoms() - qui lit un ficher et insert des elements de type "Symptom" dans une liste 	
 	@Override
-	public HashMap<String, Integer> addElementToMap(String path_File) {
-
-		HashMap<String, Integer> map = new HashMap();
-		BufferedReader bd = null;
-		FileReader file_Read = null;
+	public List<Symptom> GetSymptoms(String filepath) {
 		
+		List<Symptom> symptoms = null;
 			try {
 				/*
-				 * lire le fichier ligne par ligne,
-				  si la valeur de ligne est égale à la clé d'un élement dans la Map, 
-				  alors, on incrémente sa valeur 
-				  sinon, on rajoute un élement qui prend la valeur de la ligne comme clé et on initialise sa valeur à 1.
+				 * lire le fichier ligne par ligne, puis on utilise le filtre suivant: 
+				  si la valeur de ligne est égale à la propieté "symptom" d'un objet element dans la liste, 
+				  alors, on incrémente la valeur de son propiété "occurence"
+				  sinon, on crée un objet pour le nouveau symptom et initialise sa valeur d'occurence à 1 et on l'insert dans la liste.
 				 */ 
-		    	file_Read = new FileReader (path_File);
-				bd = new BufferedReader (file_Read );
-				String symptom = bd.readLine();	
-				Integer occurence = 1;
-				while (symptom != null) {
-					if(map.get(symptom) == null) {
-						map.put(symptom, 1);
+				BufferedReader reader = new BufferedReader (new FileReader(filepath));
+				symptoms = new ArrayList<Symptom>();
+				String line = reader.readLine();
+				
+				while (line != null) {	
+					String l = line;
+					Symptom symptom = symptoms.stream()
+		  					  .filter(s -> l.equals(s.getSymptom()))
+		  		  			  .findAny().orElse(null);
+					if(symptom != null) {
+						symptom.setOccurence((symptom.getOccurence())+1);
 					}else {
-						map.put(symptom, map.get(symptom)+1 );	
+						symptoms.add(new Symptom(line, 1));
 					}
-					symptom = bd.readLine();					
+					line = reader.readLine();
 				}
-				// Affiche les valeur et les clés des elements du Map
-				Set<String> set = map.keySet();
-				Iterator<String> iterator = set.iterator();
-				while(iterator.hasNext()) {
-					String symptoms = iterator.next().toString();
-					System.out.print(" " + symptoms+" --> " + map.get(symptoms));	
-				}
+				
+				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		return map;
-		
-	}
-
-	/*
-	    Methode - writeAllListInFile() - qui prend comme parametre une Map, 
-		et ecrit les valeurs et clés de ses elements, 
-		dans le fichier passé en parametre, en utilisant les itérateurs
-	 */
-	@Override
-	public void writeAllMapInFile(HashMap<String,Integer> map, String name_File) {
-		
-		FileWriter fw;
-		try {
-			
-			fw = new FileWriter(name_File);
-			PrintWriter pw = new PrintWriter(fw);
-			Set<String> set = map.keySet();
-			Iterator<String> iterator = set.iterator();
-			while(iterator.hasNext()) {
-				String symptoms = iterator.next().toString();
-				pw.println(symptoms+" = "+ map.get(symptoms));
-				System.out.print("writer"+symptoms+" --> "+ map.get(symptoms));	
-			}
-			fw.close();			
-			pw.close();
-			  
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+			// Afficher les valeurs des prorietés des objets de type Sypmtom elements de la liste  
+			symptoms.forEach(s->System.out.println(s.getSymptom()+ " = " +s.getOccurence()));
+		return symptoms;
 	}
 	
+	/* Méthode - writeAllListInFile() - qui prend comme paramétre une liste, 
+		et écrit les valeurs des propriétés symptom et ocuurence de ses elements, dans un fichier passé en paramétre.
+	*/
+	@Override	
+	public void writeAllListInFile(List<Symptom> symptoms, String name_File) {
+			
+			FileWriter fw;
+			try {
+				
+				PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(name_File)));				 
+				symptoms.forEach(s->pw.println(s.getSymptom()+" = "+ s.getOccurence()));
+				pw.close();
+				  
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+
 }
