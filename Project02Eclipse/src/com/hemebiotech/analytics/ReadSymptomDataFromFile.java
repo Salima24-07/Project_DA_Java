@@ -45,6 +45,10 @@ public class ReadSymptomDataFromFile implements ISymptomReader {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+
+			// tri la liste par ordre alphabétique
+			Collections.sort(symptoms, Comparator.comparing(Symptom::getSymptom));
+
 			// Afficher les valeurs des prorietés des objets de type Sypmtom elements de la liste  
 			symptoms.forEach(s->System.out.println(s.getSymptom()+ " = " +s.getOccurence()));
 		return symptoms;
