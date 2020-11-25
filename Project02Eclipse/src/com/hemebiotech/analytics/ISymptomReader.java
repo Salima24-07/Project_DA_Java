@@ -1,10 +1,15 @@
 package com.hemebiotech.analytics;
 
-import java.util.List;
+import java.util.Map;
+
+/** 
+ * "ISymptomReader": An interface that defines the behavior of the class that implements it
+ * @author salima
+ */
 
 public interface ISymptomReader {
-	
-	List<Symptom> GetSymptoms(String filepath);
-	void writeAllListInFile(List<Symptom> symptoms_OCcurnce, String name_File);
-	
+
+	Map<String, Integer> addElementToMap( String pathFile );
+	Map<String, Integer> sortMap(Map<String, Integer> map);
+	void writeAllMapInFile (Map<String,Integer> map, String pathFile);
 }
